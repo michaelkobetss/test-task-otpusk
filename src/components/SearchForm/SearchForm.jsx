@@ -108,10 +108,16 @@ const SearchForm = () => {
                 <div className={styles["search-form__input-wrapper"]}>
                     <input
                         type="text"
-                        placeholder="Введите запрос"
                         value={searchValue}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleSubmit(e); // Сабмит при нажатии Enter
+                            }
+                        }}
                         onChange={handleInputChange}
                         onFocus={handleInputFocus}
+                        placeholder="Введіть напрямок"
                         className={styles["search-form__input"]}
                     />
                     {searchValue && (
@@ -132,14 +138,11 @@ const SearchForm = () => {
 
                 {/* Выпадающий список */}
                 {isDropdownOpen && dropdownItems.length > 0 && (
-                    <Dropdown
-                        items={dropdownItems}
-                        onSelect={handleItemSelect}
-                    />
+                    <Dropdown items={dropdownItems} onItemSelect={handleItemSelect} />
                 )}
 
                 <button type="submit" className={styles["search-form__submit-button"]}>
-                    Найти
+                    Знайти
                 </button>
             </form>
         </div>

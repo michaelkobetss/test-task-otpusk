@@ -1,8 +1,7 @@
 import React from "react";
-import PublicIcon from "@mui/icons-material/Public"; // Иконка для стран (глобус)
 import LocationCityIcon from "@mui/icons-material/LocationCity"; // Иконка для городов
 import HotelIcon from "@mui/icons-material/Hotel"; // Иконка для отелей
-import styles from "./Dropdown.module.sass"; // Подключение модулей правильно
+import styles from "./Dropdown.module.sass";
 
 const Dropdown = ({ items, onItemSelect }) => {
     return (
@@ -13,12 +12,17 @@ const Dropdown = ({ items, onItemSelect }) => {
                     className={styles.dropdown__item}
                     onClick={() => onItemSelect(item)}
                 >
-                       <span className={styles.dropdown__icon}>
-                           {/* Отображаем иконки Material Icons в зависимости от типа элемента */}
-                           {item.type === "country" && <PublicIcon />}
-                           {item.type === "city" && <LocationCityIcon />}
-                           {item.type === "hotel" && <HotelIcon />}
-                       </span>
+                    <span className={styles.dropdown__icon}>
+                        {item.type === "country" && (
+                            <img
+                                src={item.flag}
+                                alt={`${item.name} flag`}
+                                className={styles.dropdown__flag}
+                            />
+                        )}
+                        {item.type === "city" && <LocationCityIcon />}
+                        {item.type === "hotel" && <HotelIcon />}
+                    </span>
                     <span className={styles.dropdown__text}>{item.name}</span>
                 </li>
             ))}
