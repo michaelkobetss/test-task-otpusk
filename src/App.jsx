@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Task1 from "@pages/Task1";
+import Task2 from "@pages/Task2";
+import Task3 from "@pages/Task3";
+import Task4 from "@pages/Task4";
+import Task5 from "@pages/Task5";
+import Layout from "@components/Layout/index.js";
+import TaskNavigation from "@components/TaskNavigation"; // Импортируем новый компонент
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+    return (
+        <Router>
+            <div className="app-container">
+                <Layout>
+                    {/* Навигация */}
+                    <TaskNavigation />
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+                    {/* Маршруты */}
+                    <Routes>
+                        <Route
+                            path="/"
+                            element={<Navigate to="/task1" replace />} // Редирект с "/"
+                        />
+                        <Route path="/task1" element={<Task1 />} />
+                        <Route path="/task2" element={<Task2 />} />
+                        <Route path="/task3" element={<Task3 />} />
+                        <Route path="/task4" element={<Task4 />} />
+                        <Route path="/task5" element={<Task5 />} />
+                        <Route
+                            path="*"
+                            element={<div>Страница не найдена!</div>} // Обработка неизвестных маршрутов
+                        />
+                    </Routes>
+                </Layout>
+            </div>
+        </Router>
+    );
+};
 
-export default App
+export default App;

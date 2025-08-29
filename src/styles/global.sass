@@ -1,0 +1,24 @@
+@use './variables' as *
+@use './reset'
+@use './mixins' as *
+
+
+// Кнопки
+button, .btn
+  +button
+  background-color: $color-primary
+  color: $color-white
+  border: none
+  &:hover
+    box-shadow: $shadow-hover
+
+// Лінки
+a
+  color: $color-primary
+  text-decoration: none
+  &:hover
+    text-decoration: underline
+
+// Карточки
+.card
+  +card

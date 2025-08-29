@@ -1,0 +1,19 @@
+/* src/components/Layout/Layout.module.scss */
+@use '../../styles/mixins' as * // Подключаем общие mixins
+@use '../../styles/variables' as * // Подключаем переменные
+
+.container
+  max-width: 1200px // Стандартная максимальная ширина
+  width: 100%
+  margin: 0 auto // Центрирование
+  padding: 20px // Отступы для контейнера
+  font-family: $font-main // Общий шрифт из переменных
+  color: $color-text
+
+  @include responsive-tablet
+    padding: 16px
+
+
+  @include responsive-phone
+    padding: 12px
+

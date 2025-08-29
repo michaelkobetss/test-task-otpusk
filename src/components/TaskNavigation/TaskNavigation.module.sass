@@ -1,0 +1,32 @@
+.navigation
+  display: flex
+  justify-content: center
+  align-items: center
+  gap: 20px
+  padding: 15px
+
+  /* Стили для ссылок */
+  a
+    text-decoration: none
+    font-size: 16px
+    font-weight: bold
+    padding: 10px 20px
+    border-radius: 5px
+    transition: all 0.3s ease
+
+    &:hover
+      background-color: #0056b3
+      color: #fff
+      transform: translateY(-2px)
+
+    &:active
+      transform: translateY(0)
+
+  /* Активное состояние ссылки */
+  .active-link
+    background-color: #0056b3
+    color: #fff
+
+  @media (max-width: 768px) // Адаптивный дизайн для планшета
+    flex-direction: column
+    gap: 15px
