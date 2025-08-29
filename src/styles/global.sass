@@ -1,13 +1,14 @@
 @use './variables' as *
 @use './reset'
 @use './mixins' as *
+@use 'typography'
 
 
 // Кнопки
 button, .btn
   +button
   background-color: $color-primary
-  color: $color-white
+  color: $color-bg
   border: none
   &:hover
     box-shadow: $shadow-hover
@@ -16,8 +17,8 @@ button, .btn
 a
   color: $color-primary
   text-decoration: none
-  &:hover
-    text-decoration: underline
+  //&:hover
+  //  text-decoration: underline
 
 // Карточки
 .card

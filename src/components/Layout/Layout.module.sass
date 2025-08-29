@@ -1,19 +1,18 @@
-/* src/components/Layout/Layout.module.scss */
-@use '../../styles/mixins' as * // Подключаем общие mixins
-@use '../../styles/variables' as * // Подключаем переменные
+/* src/components/Layout/Layout.module.sass */
+@use '../../styles/mixins' as *
+@use '../../styles/variables' as *
 
 .container
-  max-width: 1200px // Стандартная максимальная ширина
+  max-width: 1200px
   width: 100%
-  margin: 0 auto // Центрирование
-  padding: 20px // Отступы для контейнера
-  font-family: $font-main // Общий шрифт из переменных
+  margin: 0 auto
+  padding: 20px
+  font-family: $font-main
   color: $color-text
+  //background-color: $color-bg
 
   @include responsive-tablet
     padding: 16px
 
-
   @include responsive-phone
     padding: 12px
-

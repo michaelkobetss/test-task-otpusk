@@ -1,0 +1,43 @@
+@use './variables' as *
+
+// Заголовки
+h1, h2, h3, h4, h5, h6
+  font-family: $font-main
+  margin: 20px 0
+  line-height: 1.2
+  color: $color-text
+
+h1
+  font-size: $font-size-h1
+h2
+  font-size: $font-size-h2
+h3
+  font-size: $font-size-h3
+h4
+  font-size: $font-size-h4
+h5
+  font-size: $font-size-h5
+h6
+  font-size: $font-size-h6
+
+// Параграфы
+p
+  font-family: $font-main
+  font-size: $font-size-p
+  line-height: 1.5
+  color: $color-text
+  margin: 16px 0
+
+// Ссылки
+a
+  color: $color-primary
+  text-decoration: none
+  font-weight: 500
+  &:hover
+    text-decoration: underline
+
+// Текстовый инлайн-элемент
+span
+  font-family: $font-main
+  font-size: $font-size-span
+  color: $color-text

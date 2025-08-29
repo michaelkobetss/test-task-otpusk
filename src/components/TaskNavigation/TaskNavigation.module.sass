@@ -1,3 +1,6 @@
+/* src/components/TaskNavigation/TaskNavigation.module.sass */
+@use '../../styles/variables' as *
+
 .navigation
   display: flex
   justify-content: center
@@ -13,10 +16,11 @@
     padding: 10px 20px
     border-radius: 5px
     transition: all 0.3s ease
+    color: $color-text
 
     &:hover
-      background-color: #0056b3
-      color: #fff
+      background-color: $color-primary
+      color: $color-text-light
       transform: translateY(-2px)
 
     &:active
@@ -24,8 +28,8 @@
 
   /* Активное состояние ссылки */
   .active-link
-    background-color: #0056b3
-    color: #fff
+    background-color: $color-primary
+    color: $color-text-light
 
   @media (max-width: 768px) // Адаптивный дизайн для планшета
     flex-direction: column

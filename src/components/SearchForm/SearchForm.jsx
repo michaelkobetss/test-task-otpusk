@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import Dropdown from "../Dropdown/Dropdown.jsx";
 import styles from "./SearchForm.module.sass";
 import CloseIcon from "@mui/icons-material/Close";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
+import {SearchOff} from "@mui/icons-material"; // Імпортуємо сумний смайлик
 
 const SearchForm = () => {
     const [searchValue, setSearchValue] = useState("");
     const [dropdownItems, setDropdownItems] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedType, setSelectedType] = useState(null); // Тип выбранного значения (country, city, hotel)
+    const [isFirstFocus, setIsFirstFocus] = useState(true); // Отслеживание первого фокуса
 
-    // Загрузка стран
     const fetchCountries = async () => {
         try {
             const response = await getCountries();
@@ -28,14 +30,18 @@ const SearchForm = () => {
     // Обработка фокуса на инпуте
     const handleInputFocus = async () => {
         try {
-            if (selectedType === "country") {
-                // Если выбрана страна, показываем страны
-                fetchCountries();
+            if (isFirstFocus) {
+                // Если первое нажатие, показываем только страны
+                setIsFirstFocus(false); // Сбрасываем этот флаг для последующих фокусов
+                await fetchCountries();
+            } else if (selectedType === "country") {
+                // Если выбрана страна, также показываем страны
+                await fetchCountries();
             } else {
-                // Если город или отель, показываем результаты поиска по введенному значению
+                // Для других типов выполняем поиск
                 const response = await searchGeo(searchValue);
                 const results = await response.json();
-                // Убираем страны из поиска
+                // Убираем страны из результата
                 const filteredResults = Object.values(results).filter(
                     (item) => item.type !== "country"
                 );
@@ -90,6 +96,7 @@ const SearchForm = () => {
         setDropdownItems([]);
         setIsDropdownOpen(false);
         setSelectedType(null); // Сбрасываем тип
+        setIsFirstFocus(true);
     };
 
     return (
@@ -101,16 +108,10 @@ const SearchForm = () => {
                 <div className={styles["search-form__input-wrapper"]}>
                     <input
                         type="text"
+                        placeholder="Введите запрос"
                         value={searchValue}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                e.preventDefault();
-                                handleSubmit(e); // Сабмит при нажатии Enter
-                            }
-                        }}
                         onChange={handleInputChange}
                         onFocus={handleInputFocus}
-                        placeholder="Введіть напрямок"
                         className={styles["search-form__input"]}
                     />
                     {searchValue && (
@@ -121,17 +122,24 @@ const SearchForm = () => {
                     )}
                 </div>
 
-                {/* Выпадающий список */}
-                {isDropdownOpen && (
-                    <Dropdown items={dropdownItems} onItemSelect={handleItemSelect} />
+                {/* Уведомление о том, что ничего не найдено */}
+                {isDropdownOpen && dropdownItems.length === 0 && (
+                    <div className={styles["search-form__no-results"]}>
+                        <SearchOffIcon fontSize="small" />
+                        <span>Нічого не знайдено</span>
+                    </div>
                 )}
 
-                {/* Кнопка сабмита */}
-                <button
-                    type="submit"
-                    className={styles["search-form__submit-button"]}
-                >
-                    Знайти
+                {/* Выпадающий список */}
+                {isDropdownOpen && dropdownItems.length > 0 && (
+                    <Dropdown
+                        items={dropdownItems}
+                        onSelect={handleItemSelect}
+                    />
+                )}
+
+                <button type="submit" className={styles["search-form__submit-button"]}>
+                    Найти
                 </button>
             </form>
         </div>

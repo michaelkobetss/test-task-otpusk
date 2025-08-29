@@ -1,7 +1,10 @@
+/* src/components/SearchForm/SearchForm.module.sass */
+@use '../../styles/variables' as *
+
 .card
-  background: #ffffff
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)
-  border-radius: 12px
+  background: $color-white
+  box-shadow: $shadow-hover
+  border-radius: 16px
   padding: 20px
   max-width: 500px
   margin: 20px auto
@@ -16,46 +19,46 @@
     font-size: 18px
     font-weight: bold
     margin-bottom: 10px
-    color: #333333
+    color: $color-text
     text-align: center
 
-.search-form__input-wrapper
-  position: relative
-  display: flex
-  align-items: center
-  flex-direction: row // Горизонтальный режим для ввода и крестика
+  &__input-wrapper
+    position: relative
+    display: flex
+    align-items: center
+    flex-direction: row
 
-.search-form__input
-  flex-grow: 1
-  padding: 12px 40px 12px 12px
-  font-size: 16px
-  border: 1px solid #ddd
-  border-radius: 8px
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1)
-  transition: all 0.3s ease
+  &__input
+    flex-grow: 1
+    padding: 12px 40px 12px 12px
+    font-size: 16px
+    border: 1px solid $color-border
+    border-radius: 8px
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1)
+    transition: all 0.3s ease
 
-  &:focus
-    border-color: #007bff
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3)
-    outline: none
+    &:focus
+      border-color: $color-primary
+      box-shadow: 0 0 4px rgba(37, 99, 235, 0.3)
+      outline: none
 
-.search-form__clear-icon
-  font-size: 20px
-  cursor: pointer
-  color: #666
-  margin-left: -30px
-  position: static
+  &__clear-icon
+    font-size: 20px
+    cursor: pointer
+    color: $color-muted
+    margin-left: -30px
+    position: static
 
-  &:hover
-    color: #333
+    &:hover
+      color: $color-text
 
   &__submit-button
-    width: 100% // Ширина кнопки теперь равна ширине инпута
+    width: 100%
     padding: 12px
     font-size: 16px
     font-weight: bold
-    background-color: #007bff
-    color: #ffffff
+    background-color: $color-primary
+    color: $color-text-light
     border: none
     border-radius: 8px
     cursor: pointer
@@ -63,7 +66,14 @@
     transition: background-color 0.3s ease, transform 0.2s ease
 
     &:hover
-      background-color: #0056b3
+      background-color: darken($color-primary, 10%)
 
     &:active
       transform: scale(0.98)
+.search-form__no-results
+  margin-top: -10px
+  font-size: 14px
+  display: flex
+  justify-content: center
+  align-items: center
+  gap: 5px // Відстань між смайликом і текстом
