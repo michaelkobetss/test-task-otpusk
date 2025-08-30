@@ -1,16 +1,16 @@
-// src/pages/TaskN/TaskN.jsx
-import React from 'react'
+// src/pages/Task2/Task2.jsx
+import React from "react";
+import Layout from "@components/Layout"; // Макет страницы
+import SearchTours from "@components/SearchTours"; // Импорт отдельного компонента
 
 const Task2 = () => {
-
-
     return (
-        <div className="task-container">
-            <h1>Задача 2</h1>
+        <Layout>
+            <div className="task-container">
+                <SearchTours />
+            </div>
+        </Layout>
+    );
+};
 
-
-        </div>
-    )
-}
-
-export default Task2
+export default Task2;
