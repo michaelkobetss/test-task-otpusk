@@ -12,7 +12,10 @@ const getSecondsPhrase = (s) => {
 
 const initialState = {
     results: [],
-    cache: {},
+    // кеш турів: countryID -> results array
+    toursCache: {},
+    // кеш готелів: countryID -> hotels object/array
+    hotelsCache: {},
 
     isLoading: false,
     error: null,
@@ -29,6 +32,8 @@ const initialState = {
 
     // мапа countryID -> remaining retries after empty result
     emptyRetriesByCountry: {},
+
+    hasSearched: false,
 };
 
 const toursSlice = createSlice({
@@ -134,6 +139,17 @@ const toursSlice = createSlice({
                 state.emptyRetriesByCountry = copy;
             }
         },
+
+        // встановити кеш готелів для країни
+        setHotelsCache(state, action) {
+            const { countryID, hotels } = action.payload;
+            state.hotelsCache = { ...state.hotelsCache, [countryID]: hotels };
+        },
+
+        // опціонально: очистити кеш турів (якщо потрібно)
+        clearToursCache(state) {
+            state.toursCache = {};
+        },
     },
 
     extraReducers: (builder) => {
@@ -142,7 +158,7 @@ const toursSlice = createSlice({
             state.currentRequestId = action.meta.requestId;
             state.isLoading = true;
             state.error = null;
-            // results залишаємо поки не прийде новий
+            // results залишаємо поки не прийде новий (або overwrite у fulfilled)
         })
 
         .addCase("tours/fetchTours/fulfilled", (state, action) => {
@@ -164,7 +180,13 @@ const toursSlice = createSlice({
             const payload = action.payload || [];
 
             state.results = payload;
-            state.cache = { ...state.cache, [countryID]: payload };
+            state.hasSearched = true;
+
+            // кешуємо результати по країні
+            if (payload.length > 0) {
+                state.toursCache = { ...state.toursCache, [countryID]: payload };
+            }
+
 
             if (payload.length === 0) {
                 // якщо для цієї країни ще не було лічильника — встановимо 2
@@ -230,6 +252,8 @@ export const {
     setEmptyRetriesForCountry,
     decrementEmptyRetry,
     clearEmptyRetriesForCountry,
+    setHotelsCache,
+    clearToursCache,
 } = toursSlice.actions;
 
 export default toursSlice.reducer;

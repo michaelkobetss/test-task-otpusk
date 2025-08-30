@@ -129,18 +129,7 @@ const SearchTours = () => {
                 {error && <div className={styles.error}>{error}</div>}
             </div>
 
-            {showEmptyHint && (
-                <div className={styles.empty}>
-                    За вашим запитом турів не знайдено
-                    {typeof retriesForThisCountry === "number" &&
-                        retriesForThisCountry > 0 && (
-                            <div className={styles.hint}>
-                                Можна оновити ще {retriesForThisCountry}{" "}
-                                {retriesForThisCountry === 1 ? "раз" : "рази"}.
-                            </div>
-                        )}
-                </div>
-            )}
+
 
             {!isLoading && !isWaiting && !error && results && results.length > 0 && (
                 <ul className={styles.resultsList}>

@@ -5,9 +5,17 @@ import {
     clearWait,
     setInfo,
     decrementEmptyRetry,
+    setHotelsCache,
 } from "./toursSlice";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ---- Увага: ці функції мають бути визначені у вашому оточенні ----
+// startSearchPrices(countryID) -> Response (json { token, waitUntil })
+// getSearchPrices(token) -> Response (json { prices } або status IN_PROGRESS)
+// getHotels(countryID) -> Response (json hotels object)
+// stopSearchPrices(token) -> cancels on server (optional)
+// ------------------------------------------------------------------
 
 /**
  * Чекаємо до ts — але не тикаємо UI-лічильник (компонент робить tickRemaining щосекунди).
@@ -23,10 +31,9 @@ const waitUntilWithAbortCheck = async (ts, { dispatch, getState, requestId }) =>
             throw new Error("ABORTED");
         }
         // чекати по 1с
-        // не диспатчимо tick тут — UI робить це сам
         await sleep(1000);
     }
-    // коли час настав — прибираємо локальний wait; thunk продовжить виконання
+    // коли час настав — прибираємо локальний wait
     dispatch(clearWait());
 };
 
@@ -47,16 +54,22 @@ export const cancelActiveSearch = createAsyncThunk(
 
 /**
  * fetchTours(countryID)
- * - підтримує локальний pre-wait (localStorage waitUntil_{countryID})
- * - якщо для поточної країни є встановлені emptyRetries і вони <=0 — блокує
- * - якщо emptyRetries >0 — зменшує (споживає) одну спробу перед стартом
- * - виконує startSearchPrices → чекати waitUntil → getSearchPrices (пулінг / retry)
+ * - перевіряє кеш турів (toursCache) і повертає кешовані результати негайно, якщо є
+ * - кешує hotels (hotelsCache) щоб уникнути повторних getHotels викликів
+ * - зберігає результати в toursCache
  */
 export const fetchTours = createAsyncThunk(
     "tours/fetchTours",
     async (countryID, { dispatch, getState, requestId, rejectWithValue }) => {
-        // 0) якщо для цієї країни вже є emptyRetries і вони 0 — блокуємо
-        const map = getState().tours.emptyRetriesByCountry || {};
+        const state = getState().tours;
+
+        // 🔹 0) Якщо є кеш для цієї країни і він не пустий — одразу повертаємо
+        if (state.cache?.[countryID] && state.cache[countryID].length > 0) {
+            return state.cache[countryID];
+        }
+
+        // 🔹 1) якщо для цієї країни вже є emptyRetries і вони 0 — блокуємо
+        const map = state.emptyRetriesByCountry || {};
         const curRetries = map[countryID];
         if (typeof curRetries === "number") {
             if (curRetries <= 0) {
@@ -66,7 +79,7 @@ export const fetchTours = createAsyncThunk(
             dispatch(decrementEmptyRetry(countryID));
         }
 
-        // 1) перевірка localStorage pre-wait
+        // 🔹 2) перевірка localStorage pre-wait
         const saved = localStorage.getItem(`waitUntil_${countryID}`);
         if (saved) {
             const ts = Number(saved);
@@ -75,7 +88,7 @@ export const fetchTours = createAsyncThunk(
             }
         }
 
-        // 2) старт пошуку
+        // 🔹 3) старт пошуку
         let startResp;
         try {
             startResp = await startSearchPrices(countryID);
@@ -93,23 +106,21 @@ export const fetchTours = createAsyncThunk(
         const startWaitTs = new Date(waitUntil).getTime();
         localStorage.setItem(`waitUntil_${countryID}`, startWaitTs);
 
-        // 3) очікуємо дозволений час (thunk чекає, UI тикатиме лічильник)
+        // 🔹 4) очікуємо дозволений час
         await waitUntilWithAbortCheck(startWaitTs, { dispatch, getState, requestId });
 
-        // 4) пулінг результатів з retry на мережеві/невідомі помилки (2 спроби)
+        // 🔹 5) пулінг результатів
         let netAttemptsLeft = 2;
         while (true) {
-            // перевірка на abort (якщо currentRequestId змінився)
             if (getState().tours.currentRequestId !== requestId) {
                 throw new Error("ABORTED");
             }
-
             try {
                 const resp = await getSearchPrices(token);
                 const data = await resp.json();
 
                 if (data?.prices) {
-                    // додатково витягуємо інформацію по готелях
+                    // отримуємо готелі
                     let hotelsObj = {};
                     try {
                         const hResp = await getHotels(countryID);
@@ -118,7 +129,6 @@ export const fetchTours = createAsyncThunk(
                         hotelsObj = {};
                     }
                     const hotels = Object.values(hotelsObj || {});
-
                     const results = Object.values(data.prices).map((p) => {
                         const h = hotels.find((x) => String(x.id) === String(p.hotelID));
                         return {
@@ -133,20 +143,22 @@ export const fetchTours = createAsyncThunk(
                         };
                     });
 
-                    return results;
+                    // 🔹 ⚠️ Не кешуємо пусті результати
+                    if (results.length > 0) {
+                        return results;
+                    } else {
+                        return [];
+                    }
                 }
 
-                // IN_PROGRESS / 425 style
                 if (data?.status === "IN_PROGRESS" && data?.waitUntil) {
                     const ts = new Date(data.waitUntil).getTime();
                     await waitUntilWithAbortCheck(ts, { dispatch, getState, requestId });
                     continue;
                 }
 
-                // якщо прийшло щось інше — вважаємо пустим
                 return [];
             } catch (err) {
-                // Server response with 425 and waitUntil (може кидати Response)
                 if (err instanceof Response) {
                     try {
                         const payload = await err.json();
@@ -156,22 +168,21 @@ export const fetchTours = createAsyncThunk(
                             continue;
                         }
                         return rejectWithValue(payload?.message || "Помилка отримання результатів");
-                    } catch {
-                        // якщо не можемо парсити — падаємо в сетеві/невідомі
-                    }
+                    } catch {}
                 }
 
-                // мережеві/невідомі помилки — retry до 2 разів з повідомленням
                 if (netAttemptsLeft > 0) {
                     const left = netAttemptsLeft;
-                    dispatch(setInfo(`Помилка мережі. Залишилось ${left} ${left === 1 ? "спроба" : "спроби"}.`));
+                    dispatch(
+                        setInfo(`Помилка мережі. Залишилось ${left} ${left === 1 ? "спроба" : "спроби"}.`)
+                    );
                     netAttemptsLeft -= 1;
                     await sleep(2000);
                     continue;
                 }
-
                 return rejectWithValue("Кількість спроб вичерпана. Не вдалося отримати результати.");
             }
         }
     }
 );
+
