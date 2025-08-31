@@ -1,3 +1,5 @@
+//toursThunks.js
+
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
     setActiveToken,
@@ -10,17 +12,7 @@ import {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// ---- Увага: ці функції мають бути визначені у вашому оточенні ----
-// startSearchPrices(countryID) -> Response (json { token, waitUntil })
-// getSearchPrices(token) -> Response (json { prices } або status IN_PROGRESS)
-// getHotels(countryID) -> Response (json hotels object)
-// stopSearchPrices(token) -> cancels on server (optional)
-// ------------------------------------------------------------------
 
-/**
- * Чекаємо до ts — але не тикаємо UI-лічильник (компонент робить tickRemaining щосекунди).
- * Тільки встановлюємо початковий waitUntil.
- */
 const waitUntilWithAbortCheck = async (ts, { dispatch, getState, requestId }) => {
     const now = Date.now();
     if (ts <= now) return;
@@ -54,8 +46,8 @@ export const cancelActiveSearch = createAsyncThunk(
 
 /**
  * fetchTours(countryID)
- * - перевіряє кеш турів (toursCache) і повертає кешовані результати негайно, якщо є
- * - кешує hotels (hotelsCache) щоб уникнути повторних getHotels викликів
+ * - перевіряє кеш турів (toursCache) і повертає кешовані результати    що є
+ * - кешує hotels (hotelsCache) щоб уникнути повторних getHotels вик
  * - зберігає результати в toursCache
  */
 export const fetchTours = createAsyncThunk(

@@ -14,30 +14,15 @@ const TaskNavigation = () => {
                 Задача 1
             </NavLink>
             <NavLink
-                to="/task2"
+                to="/task2-3"
                 className={({ isActive }) =>
                     isActive ? `${styles["active-link"]}` : ""
                 }
             >
-                Задача 2-3
+                Задача 2-5
             </NavLink>
-      
-            <NavLink
-                to="/task4"
-                className={({ isActive }) =>
-                    isActive ? `${styles["active-link"]}` : ""
-                }
-            >
-                Задача 4
-            </NavLink>
-            <NavLink
-                to="/task5"
-                className={({ isActive }) =>
-                    isActive ? `${styles["active-link"]}` : ""
-                }
-            >
-                Задача 5
-            </NavLink>
+
+
         </nav>
     );
 };

@@ -1,10 +1,18 @@
-// src/pages/Task2/Task2.jsx
+// src/pages/Task2-3/Task2-3.jsx
 import React from "react";
 import Layout from "@components/Layout"; // Макет страницы
 import SearchTours from "@components/SearchTours"; // Импорт отдельного компонента
 
-const Task2 = () => {
+const Task23 = () => {
     return (
+
+
+
+
+        // Tasks 2 and 3
+
+
+
         <Layout>
             <div className="task-container">
                 <SearchTours />
@@ -13,4 +21,4 @@ const Task2 = () => {
     );
 };
 
-export default Task2;
+export default Task23;

@@ -1,3 +1,6 @@
+//toursSlice.js
+
+
 import { createSlice } from "@reduxjs/toolkit";
 
 const getSecondsPhrase = (s) => {

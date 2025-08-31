@@ -1,3 +1,4 @@
+//index.js
 import { configureStore } from "@reduxjs/toolkit";
 import toursReducer from "./tours/toursSlice";
 
