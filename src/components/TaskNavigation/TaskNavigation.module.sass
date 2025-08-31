@@ -1,5 +1,6 @@
-/* src/components/TaskNavigation/TaskNavigation.module.sass */
 @use '../../styles/variables' as *
+@use '../../styles/mixins' as *
+
 
 .navigation
   display: flex
@@ -8,7 +9,6 @@
   gap: 20px
   padding: 15px
 
-  /* Стили для ссылок */
   a
     text-decoration: none
     font-size: 16px
@@ -26,11 +26,11 @@
     &:active
       transform: translateY(0)
 
-  /* Активное состояние ссылки */
   .active-link
     background-color: $color-primary
     color: $color-text-light
 
-  @media (max-width: 768px) // Адаптивный дизайн для планшета
+  @include responsive-phone
     flex-direction: column
     gap: 15px
+

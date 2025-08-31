@@ -1,5 +1,6 @@
 /* src/components/SearchForm/SearchForm.module.sass */
 @use '../../styles/variables' as *
+@use '../../styles/mixins' as *
 
 .card
   background: $color-white
@@ -67,10 +68,11 @@
     transition: background-color 0.3s ease, transform 0.2s ease
 
     &:hover
-      //background-color: darken($color-primary, 10%)
+    //background-color: darken($color-primary, 10%)
 
     &:active
       transform: scale(0.98)
+
 .search-form__no-results
   margin-top: -10px
   font-size: 14px
@@ -78,4 +80,5 @@
   display: flex
   justify-content: center
   align-items: center
-  gap: 5px // Відстань між смайликом і текстом
+  gap: 5px
+// Відстань між смайликом і текстом

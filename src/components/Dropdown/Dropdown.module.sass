@@ -1,5 +1,8 @@
 @use '../../styles/variables' as *
-@use '../../styles/typography' as * // Подключаем шрифты для текста
+@use '../../styles/typography' as *
+@use '../../styles/mixins' as *
+
+// Подключаем шрифты для текста
 
 .dropdown
   top: 100%
@@ -21,7 +24,8 @@
   align-items: center
   padding: 10px
   cursor: pointer
-  font-size: $font-size-p // Используем стандарт размера шрифта для текста
+  font-size: $font-size-p
+  // Используем стандарт размера шрифта для текста
   color: $color-text
   border-bottom: 1px solid $color-border
   transition: background-color 0.3s ease, color 0.3s ease
@@ -38,7 +42,8 @@
   align-items: center
   justify-content: center
   margin-right: 12px
-  font-size: $font-size-span // Размер шрифта для иконок
+  font-size: $font-size-span
+  // Размер шрифта для иконок
   color: $color-text
 
 .dropdown__flag
@@ -51,4 +56,5 @@
 
 .dropdown__text
   flex: 1
-  font-size: $font-size-p // Используем шрифт для текста
+  font-size: $font-size-p
+// Используем шрифт для текста
