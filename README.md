@@ -1,12 +1,60 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+# React Test Task
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Це React-проєкт, створений як тестове завдання.  
+Переглянути опубліковану версію (Демо) можна тут:  
+👉 [https://michaelkobetss.github.io/test-task-otpusk/](https://michaelkobetss.github.io/test-task-otpusk/)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Як запустити
+
+### Необхідні інструменти
+Переконайся, що у тебе встановлено:
+- [Node.js](https://nodejs.org/) (рекомендовано v16 або новішу)
+- npm (йде разом із Node.js)
+
+### Встановлення
+1. Клонуй репозиторій:
+   ```bash
+   git clone <your-repo-url>
+   cd <your-project-folder>
+
+
+2. Встанови залежності:
+
+   ```bash
+   npm install
+   ```
+
+3. Запусти сервер розробки:
+
+   ```bash
+   npm run dev
+   ```
+
+Додаток буде доступний за адресою `http://localhost:5173/` (порт Vite за замовчуванням).
+
+---
+
+## 📦 Збірка для продакшну
+
+Створення оптимізованої збірки:
+
+```bash
+npm run build
+```
+
+Попередній перегляд збірки локально:
+
+```bash
+npm run preview
+```
+
+---
+
+## 📄 Ліцензія
+
+Цей проєкт поширюється під [ліцензією MIT](LICENSE).
+
