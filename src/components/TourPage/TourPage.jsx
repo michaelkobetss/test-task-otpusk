@@ -193,7 +193,7 @@ export default function TourPage() {
                 </div>
 
                 <div className={styles.footer}>
-                    <Link to="/task3" className={styles.backLink}>
+                    <Link to="/task2-3" className={styles.backLink}>
                         ← Повернутися до пошуку
                     </Link>
                 </div>
