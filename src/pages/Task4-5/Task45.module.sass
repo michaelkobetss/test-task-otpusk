@@ -1,0 +1,97 @@
+@use '../../styles/variables' as *
+@use '../../styles/mixins' as *
+
+.card
+  background: $color-white
+  box-shadow: $shadow-card
+  border-radius: 16px
+  padding: 20px
+  max-width: 400px
+  margin: 20px auto
+  font-family: $font-main
+  display: flex
+  flex-direction: column
+  gap: 16px
+
+.title
+  font-size: $font-size-h4
+  font-weight: bold
+  color: $color-text
+  margin-bottom: 4px
+
+.location
+  display: flex
+  align-items: center
+  gap: 6px
+  font-size: $font-size-span
+  color: $color-muted
+
+.image
+  width: 100%
+  height: 180px
+  object-fit: cover
+  border-radius: 12px
+
+.section
+  margin-top: 8px
+
+.sectionTitle
+  font-size: $font-size-p
+  font-weight: 600
+  margin-bottom: 6px
+  color: $color-text
+
+.description
+  font-size: $font-size-span
+  color: $color-text
+
+.services
+  display: flex
+  flex-wrap: wrap
+  gap: 12px
+
+.serviceItem
+  display: flex
+  align-items: center
+  gap: 6px
+  font-size: $font-size-span
+  background: $color-bg
+  padding: 4px 8px
+  border-radius: 8px
+
+  .material-icons
+    font-size: 18px
+    color: $color-primary
+
+.ok
+  color: $color-primary
+  font-weight: bold
+
+.footer
+  display: flex
+  justify-content: space-between
+  align-items: center
+  margin-top: auto
+
+.date
+  font-size: $font-size-span
+  color: $color-muted
+
+.price
+  font-weight: bold
+  font-size: $font-size-h5
+  color: $color-text
+
+.linkButton
+  margin-top: 16px
+  text-align: center
+  padding: 10px
+  border-radius: $border-radius-sm
+  background-color: $color-primary
+  color: $color-text-light
+  font-weight: 500
+  text-decoration: none
+  transition: background-color 0.2s ease
+
+  &:hover
+    //background-color: darken($color-primary, 8%)

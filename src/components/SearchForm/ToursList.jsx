@@ -23,7 +23,11 @@ const ToursList = ({ results }) => (
           {tour.amount.toLocaleString('uk-UA')} {tour.currency}
         </p>
 
-        <Link to={`/price/${tour.id}`} className={styles.linkButton}>
+        <Link
+          to={`/price/${tour.id}`}
+          state={{ hotelId: tour.hotelID }} // 👈 передаємо додатково hotelId
+          className={styles.linkButton}
+        >
           Відкрити ціну
         </Link>
       </li>
