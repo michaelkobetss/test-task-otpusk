@@ -171,5 +171,25 @@
   text-decoration: none
   transition: color 0.2s ease
 
-  &:hover
-//color: darken($color-primary, 10%)
+
+.search-form__submit-button
+  width: 100%
+  padding: 12px
+  font-size: 16px
+  font-weight: bold
+  background-color: $color-primary
+  color: $color-text-light
+  border: none
+  border-radius: 8px
+  cursor: pointer
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+  transition: background-color 0.3s ease, transform 0.2s ease
+
+  &:active
+    transform: scale(0.98)
+
+  &--disabled
+    background-color: $color-border
+    color: $color-muted
+    cursor: not-allowed
+    box-shadow: none

@@ -10,9 +10,9 @@ const Dropdown = ({ items = [], onItemSelect, selectedItemId = null }) => {
       {items.length === 0 && <li className={styles.dropdown__noitems}>Нічого не знайдено</li>}
 
       {/* Отображение элементов списка */}
-      {items.map((item, index) => (
+      {items.map((item) => (
         <li
-          key={item.id || item.name || index}
+          key={item.id}
           className={`${styles.dropdown__item} ${
             item.id === selectedItemId ? styles['dropdown__item--selected'] : ''
           }`}
@@ -20,7 +20,7 @@ const Dropdown = ({ items = [], onItemSelect, selectedItemId = null }) => {
         >
           <span className={styles.dropdown__icon}>
             {item.type === 'country' && item.flag && (
-              <img src={item.flag} alt={`${item.name} flag`} className={styles.dropdown__flag} />
+              <img src={item.flag} alt="Country flag" className={styles.dropdown__flag} />
             )}
             {item.type === 'city' && <LocationCityIcon />}
             {item.type === 'hotel' && <HotelIcon />}

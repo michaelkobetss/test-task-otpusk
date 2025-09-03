@@ -2,7 +2,7 @@
 import React from 'react';
 import { HashRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import store from './store';
+import store from '@store/';
 
 import Task1 from '@pages/Task1';
 import Task45 from '@pages/Task4-5';

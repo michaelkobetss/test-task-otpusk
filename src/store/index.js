@@ -5,11 +5,7 @@ const store = configureStore({
   reducer: {
     tours: toursReducer,
   },
-  // Убедитесь, что middleware включено
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false, // (опционально) отключаем проверки сериализуемости
-    }),
+  devTools: process.env.NODE_ENV !== 'production',
 });
 
 export default store;

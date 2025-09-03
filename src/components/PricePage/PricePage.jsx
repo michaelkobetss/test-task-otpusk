@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTours } from '@store/tours/toursThunks.js';
+// import { fetchTours } from '@store/tours/toursThunks.js';
 
 const PricePage = () => {
   const { priceId } = useParams();
@@ -18,8 +18,8 @@ const PricePage = () => {
     if (!price) {
       // Предполагается, что у вас есть countryID для поиска туров
       // Возможно, вам нужно получить его из другого источника или параметра маршрута
-      const countryID = '43'; // Замените на нужный способ получения countryID
-      dispatch(fetchTours(countryID));
+      // const countryID = '43'; // Замените на нужный способ получения countryID
+      // dispatch(fetchTours(countryID));
     }
   }, [price, dispatch]);
 

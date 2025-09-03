@@ -1,222 +1,117 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+// src/components/SearchForm/SearchForm.jsx
+import React, { useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTours } from '@store/tours/toursThunks';
+import { clearInfo, setSelectedItem, clearSelectedItem } from '@store/tours/toursSlice';
 import Dropdown from '../Dropdown/Dropdown.jsx';
 import styles from './SearchForm.module.sass';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-import { useDispatch, useSelector } from 'react-redux';
-import { clearInfo, setCountryID, tickRemaining } from '@store/tours/toursSlice.js';
-import { cancelActiveSearch, fetchTours } from '@store/tours/toursThunks.js';
 import StatusBar from './StatusBar.jsx';
 import ToursList from './ToursList.jsx';
-import { fetchHotelDetails, fetchToursByCity } from '@store/tours/toursThunks.js';
+import store from '@store/index.js';
 
 const SearchForm = () => {
   const dispatch = useDispatch();
   const {
+    results,
     isLoading,
+    isWaiting,
     error,
     info,
-    results,
-    countryID,
-    isWaiting,
+    retriesLeft,
     remainingSeconds,
-    emptyRetriesByCountry,
+    selectedItem,
   } = useSelector((state) => state.tours);
 
+  // локальні стейти
   const [searchValue, setSearchValue] = useState('');
-  const [dropdownItems, setDropdownItems] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState(null); // 'country' | 'city' | 'hotel'
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedCity, setSelectedCity] = useState(null);
-  const [selectedHotel, setSelectedHotel] = useState(null);
-  const [isFirstFocus, setIsFirstFocus] = useState(true);
-  const [triedDuringWait, setTriedDuringWait] = useState(false);
+  const [dropdownItems, setDropdownItems] = useState([]);
+  const [selectedType, setSelectedType] = useState(null);
+  const [disableSubmit, setDisableSubmit] = useState(true);
 
-  const intervalRef = useRef(null);
-
-  // Запуск таймера ожидания, если идёт процесс ожидания
-  useEffect(() => {
-    if (!isWaiting) {
-      setTriedDuringWait(false);
-      return;
+  // --- loadCountries / searchGeo ---
+  const loadCountries = useCallback(async () => {
+    try {
+      const res = await getCountries();
+      const data = await res.json();
+      const items = Object.values(data).map((c) => ({ ...c, type: 'country' }));
+      setDropdownItems(items);
+      setIsDropdownOpen(true);
+    } catch (e) {
+      console.error('Помилка при завантаженні країн', e);
     }
-    intervalRef.current = setInterval(() => {
-      dispatch(tickRemaining());
-    }, 1000);
-
-    return () => clearInterval(intervalRef.current);
-  }, [isWaiting, dispatch]);
-
-  const detectType = useCallback((item) => {
-    if (item.countryID || item.value?.includes('country')) return 'country';
-    if (item.cityId || item.cityID) return 'city';
-    if (item.hotelId || item.hotelID) return 'hotel';
-    return 'unknown';
   }, []);
 
-  const fetchCountries = useCallback(async () => {
+  const handleInputChange = async (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    dispatch(clearSelectedItem());
+    setSelectedType(null);
+
+    if (!value) {
+      await loadCountries();
+      return;
+    }
+
     try {
-      const response = await getCountries();
-      const countries = await response.json();
-      const countriesWithType = Object.values(countries).map((country) => ({
-        ...country,
-        type: 'country',
-      }));
-      setDropdownItems(countriesWithType);
+      const res = await searchGeo(value);
+      const data = await res.json();
+      const items = Object.values(data);
+      setDropdownItems(items);
       setIsDropdownOpen(true);
     } catch (err) {
-      console.error('Ошибка при загрузке стран:', err);
+      console.error('Помилка searchGeo', err);
     }
-  }, []);
+  };
 
-  const handleSearchGeo = useCallback(
-    async (value) => {
-      try {
-        // Если выбран тип страны, ищем страны, иначе передаём тип для поиска городов или отелей
-        const params =
-          selectedType && (selectedType === 'city' || selectedType === 'hotel')
-            ? { query: value, type: selectedType }
-            : { query: value };
-        const response = await searchGeo(params);
-        const data = await response.json();
-        const normalized = Object.values(data).map((item) => ({
-          ...item,
-          type: item.type || detectType(item),
-        }));
-        setDropdownItems(normalized);
-        setIsDropdownOpen(true);
-      } catch (err) {
-        console.error('Ошибка при работе с API:', err);
-      }
-    },
-    [detectType, selectedType]
-  );
-
-  // Обработка фокуса: при первом фокусе грузим страны, иначе поиск по введённому запросу
   const handleInputFocus = async () => {
-    if (isFirstFocus) {
-      setIsFirstFocus(false);
-      await fetchCountries();
-    } else if (selectedType === 'country') {
-      await fetchCountries();
-    } else {
-      await handleSearchGeo(searchValue);
-    }
-  };
-
-  const handleInputChange = async (event) => {
-    const value = event.target.value;
-    setSearchValue(value);
-    console.log('handleInputChange', value);
-
-    if (!value.trim()) {
-      await fetchCountries();
-    } else {
-      await handleSearchGeo(value);
-    }
-  };
-
-  const handleItemSelect = async (item) => {
-    setSearchValue(item.name);
-    setSelectedType(item.type);
-    setSelectedItem(item);
-    setIsDropdownOpen(false);
-
-    // Обработка выбора в зависимости от типа
-    if (item.type === 'country') {
-      try {
-        // Например, отменяем активный поиск и инициируем поиск туров по стране
-        await dispatch(cancelActiveSearch());
-        dispatch(setCountryID(item.id));
-      } catch (e) {
-        console.error(e);
-      }
-    } else if (item.type === 'city') {
-      try {
-        // Сохраняем выбранный город
-        dispatch(setSelectedCity(item));
-        // Запускаем поиск туров по выбранному городу
-        // Передаем в thunk идентификатор города (используйте нужное поле, например, cityID или id)
-        await dispatch(fetchToursByCity(item.cityID || item.cityId || item.id));
-      } catch (e) {
-        console.error(e);
-      }
-    } else if (item.type === 'hotel') {
-      try {
-        // Сохраняем выбранный отель
-        dispatch(setSelectedHotel(item));
-        // Запускаем запрос деталей отеля или поиск туров по отелю,
-        // передавая идентификатор отеля (используйте hotelID или hotelId или id)
-        await dispatch(fetchHotelDetails(item.hotelID || item.hotelId || item.id));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    let idToUse = countryID;
-
-    // Если пользователь явно выбрал страну (или элемент типа country)
-    if (selectedType === 'country' && selectedItem) {
-      const selected =
-        dropdownItems.find((it) => it.type === 'country' && it.name === searchValue) ||
-        selectedItem;
-      if (selected) {
-        idToUse = String(
-          selected.id ?? selected.countryID ?? selected.value ?? selected.key ?? idToUse ?? ''
-        );
+    if (selectedItem) {
+      if (selectedItem.type === 'country') {
+        await loadCountries();
+      } else {
         try {
-          await dispatch(cancelActiveSearch());
-        } catch {
-          // Игнорируем
+          const res = await searchGeo(searchValue);
+          const data = await res.json();
+          setDropdownItems(Object.values(data));
+        } catch (err) {
+          console.error('Помилка searchGeo', err);
         }
-        dispatch(setCountryID(idToUse));
       }
+      setIsDropdownOpen(true);
+    } else {
+      await loadCountries();
     }
+  };
 
-    // Если выбраны город или отель
-    if ((selectedType === 'city' || selectedType === 'hotel') && selectedItem) {
-      idToUse = countryID || selectedItem.countryId || idToUse;
-    }
+  const handleItemSelect = (item) => {
+    setSearchValue(item.name);
+    dispatch(setSelectedItem(item));
+    setSelectedType(item.type);
+    setIsDropdownOpen(false);
+    setDisableSubmit(!item);
+  };
 
-    if (!idToUse) {
-      console.warn('Не выбран ID страны — невозможно выполнить поиск туров');
-      return;
-    }
+  const clearInput = async () => {
+    setSearchValue('');
+    setDisableSubmit(true);
+    dispatch(clearSelectedItem());
+    dispatch(clearInfo());
+    await loadCountries();
+  };
 
-    const retriesForThisCountry = emptyRetriesByCountry?.[idToUse];
-    if (typeof retriesForThisCountry === 'number' && retriesForThisCountry <= 0) {
-      dispatch(clearInfo());
-      return;
-    }
+  // --- Сабміт ---
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!selectedItem) return;
 
-    if (isWaiting) {
-      setTriedDuringWait(true);
-      return;
-    }
+    const state = store.getState().tours; // або useSelector
+    // встав сюди відповідь
 
     dispatch(clearInfo());
-    dispatch(fetchTours(idToUse));
+    dispatch(fetchTours({ id: selectedItem.id, type: selectedItem.type }));
   };
-
-  const clearInput = () => {
-    setSearchValue('');
-    setDropdownItems([]);
-    setIsDropdownOpen(false);
-    setSelectedType(null);
-    setSelectedItem(null);
-    setIsFirstFocus(true);
-  };
-
-  const retriesForThisCountry = emptyRetriesByCountry?.[countryID];
-  const disableSubmit =
-    isLoading ||
-    isWaiting ||
-    (typeof retriesForThisCountry === 'number' && retriesForThisCountry <= 0);
 
   return (
     <div className={styles.card}>
@@ -251,27 +146,36 @@ const SearchForm = () => {
         )}
 
         {isDropdownOpen && dropdownItems.length > 0 && (
-          <Dropdown items={dropdownItems} onItemSelect={handleItemSelect} />
+          <Dropdown
+            items={dropdownItems}
+            onItemSelect={handleItemSelect}
+            selectedItemId={selectedItem?.id}
+          />
         )}
 
         <button
           type="submit"
-          className={styles['search-form__submit-button']}
-          disabled={disableSubmit}
+          className={`${styles['search-form__submit-button']} ${
+            isWaiting ? styles['search-form__submit-button--disabled'] : ''
+          }`}
+          disabled={disableSubmit || isWaiting}
         >
           Знайти
         </button>
       </form>
 
       <StatusBar
-        retriesForThisCountry={retriesForThisCountry}
+        retriesForThisCountry={retriesLeft}
         isLoading={isLoading}
-        triedDuringWait={triedDuringWait}
         isWaiting={isWaiting}
         remainingSeconds={remainingSeconds}
         info={info}
         error={error}
       />
+
+      {!isLoading && !isWaiting && !error && results?.length === 0 && (
+        <div className={styles['search-form__empty']}>За вашим запитом турів не знайдено</div>
+      )}
 
       {!isLoading && !isWaiting && !error && results?.length > 0 && (
         <ToursList results={results} selectedType={selectedType} selectedItem={selectedItem} />

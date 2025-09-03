@@ -4,11 +4,7 @@ import React from 'react';
 import Layout from '@components/Layout';
 import PricePage from '@components/PricePage';
 const Task45 = () => {
-  return (
-    <div className="task-container">
-      <PricePage />{' '}
-    </div>
-  );
+  return <div className="task-container">{/*<PricePage />{' '}*/}</div>;
 };
 
 export default Task45;
