@@ -171,3 +171,41 @@ export const fetchTours = createAsyncThunk(
     }
   }
 );
+// Исходя из файла api.js предполагается, что глобально доступен экземпляр базы данных,
+// например: window.db = new DB();
+
+export const fetchToursByCity = createAsyncThunk(
+  'tours/fetchToursByCity',
+  async (cityID, { rejectWithValue }) => {
+    try {
+      // Получаем все отели из мока
+      if (typeof window.db === 'undefined') {
+        throw new Error('Нет доступа к данным');
+      }
+      const hotelsObj = window.db.getHotels();
+      // Фильтруем отели по ID города
+      const tours = Object.values(hotelsObj).filter(
+        (hotel) => Number(hotel.cityId) === Number(cityID)
+      );
+      return tours;
+    } catch (e) {
+      return rejectWithValue('Не удалось загрузить туры для города.');
+    }
+  }
+);
+
+export const fetchHotelDetails = createAsyncThunk(
+  'tours/fetchHotelDetails',
+  async (hotelID, { rejectWithValue }) => {
+    try {
+      // Получаем детальную информацию об отеле из мока
+      if (typeof window.db === 'undefined') {
+        throw new Error('Нет доступа к данным');
+      }
+      const hotel = window.db.getHotel(Number(hotelID));
+      return hotel;
+    } catch (e) {
+      return rejectWithValue('Не удалось загрузить информацию об отеле.');
+    }
+  }
+);

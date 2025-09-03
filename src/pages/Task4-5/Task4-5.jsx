@@ -2,15 +2,12 @@
 
 import React from 'react';
 import Layout from '@components/Layout';
-import TourPage from '@components/TourPage/TourPage';
-
+import PricePage from '@components/PricePage';
 const Task45 = () => {
   return (
-    <Layout>
-      <div className="task-container">
-        <TourPage />
-      </div>
-    </Layout>
+    <div className="task-container">
+      <PricePage />{' '}
+    </div>
   );
 };
 

@@ -1,4 +1,3 @@
-//index.js
 import { configureStore } from '@reduxjs/toolkit';
 import toursReducer from './tours/toursSlice';
 
@@ -6,9 +5,10 @@ const store = configureStore({
   reducer: {
     tours: toursReducer,
   },
+  // Убедитесь, что middleware включено
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false,
+      serializableCheck: false, // (опционально) отключаем проверки сериализуемости
     }),
 });
 
