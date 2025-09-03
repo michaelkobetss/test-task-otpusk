@@ -10,6 +10,8 @@ import SearchOffIcon from '@mui/icons-material/SearchOff';
 import StatusBar from './StatusBar.jsx';
 import ToursList from './ToursList.jsx';
 import store from '@store/index.js';
+import { removeActiveToken } from '@store/tours/toursThunks'; // Импорт нового экшена
+import debounce from 'lodash/debounce';
 
 const SearchForm = () => {
   const dispatch = useDispatch();
@@ -44,26 +46,38 @@ const SearchForm = () => {
     }
   }, []);
 
-  const handleInputChange = async (e) => {
+  const debouncedSearch = useCallback(
+    debounce(async (value) => {
+      if (!value) {
+        await loadCountries();
+        return;
+      }
+
+      try {
+        const res = await searchGeo(value);
+        const data = await res.json();
+        const items = Object.values(data);
+        setDropdownItems(items);
+        setIsDropdownOpen(true);
+      } catch (err) {
+        console.error('Помилка searchGeo', err);
+      }
+    }, 300),
+    []
+  );
+
+  const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchValue(value);
+
+    // Удаляем активный токен
+    dispatch(removeActiveToken());
+
+    // Выполняем дебаунс-логику
+    debouncedSearch(value);
+
     dispatch(clearSelectedItem());
     setSelectedType(null);
-
-    if (!value) {
-      await loadCountries();
-      return;
-    }
-
-    try {
-      const res = await searchGeo(value);
-      const data = await res.json();
-      const items = Object.values(data);
-      setDropdownItems(items);
-      setIsDropdownOpen(true);
-    } catch (err) {
-      console.error('Помилка searchGeo', err);
-    }
   };
 
   const handleInputFocus = async () => {

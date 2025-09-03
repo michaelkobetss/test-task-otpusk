@@ -1,5 +1,7 @@
 // src/store/tours/fetchTours.js
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { clearToken } from './toursSlice'; // Импортируем новый экшен
+
 import {
   startLoading,
   stopLoading,
@@ -82,6 +84,12 @@ export const fetchTours = createAsyncThunk(
               img: hotel?.img || null,
               city: hotel?.cityName || '',
               country: hotel?.countryName || '',
+
+              // 🔥 додаємо відсутні поля
+              description: hotel?.description || null,
+              services: hotel?.services || {}, // wifi, pool, parking тощо
+              stars: hotel?.stars || null,
+              address: hotel?.address || null,
             };
           });
 
@@ -103,3 +111,16 @@ export const fetchTours = createAsyncThunk(
     }
   }
 );
+export const removeActiveToken = () => async (dispatch, getState) => {
+  const activeToken = getState().tours.token;
+
+  if (!activeToken) return;
+
+  try {
+    await stopSearchPrices(activeToken); // предположительно асинхронная функция
+  } catch (err) {
+    console.error('Ошибка при остановке поиска цен:', err);
+  }
+
+  dispatch(clearToken()); // Убираем токен из состояния
+};

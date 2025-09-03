@@ -57,7 +57,9 @@ const toursSlice = createSlice({
     setToken: (state, action) => {
       state.token = action.payload;
     },
-
+    clearToken: (state) => {
+      state.token = null;
+    },
     setResults: (state, action) => {
       state.results = action.payload;
       state.isLoading = false;
@@ -125,6 +127,7 @@ export const {
   setHotelsCache,
   setResultsCache,
   incrementCountryAttempt,
+  clearToken,
 } = toursSlice.actions;
 
 export default toursSlice.reducer;
