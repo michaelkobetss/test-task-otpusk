@@ -1,3 +1,4 @@
+// src/store/tours/fetchTours.js
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import {
   startLoading,
@@ -10,10 +11,9 @@ import {
   setRetriesLeft,
   setHotelsCache,
   setResultsCache,
+  incrementCountryAttempt,
+  setInfo,
 } from './toursSlice';
-
-// ⚠️ ці функції мають бути імпортовані з API
-// import { startSearchPrices, getSearchPrices, getHotels } from '@/api';
 
 export const fetchTours = createAsyncThunk(
   'tours/fetchTours',
@@ -21,6 +21,14 @@ export const fetchTours = createAsyncThunk(
     try {
       const key = `${type}_${id}`;
       const state = getState().tours;
+
+      // --- Ліміт спроб на країну
+      dispatch(incrementCountryAttempt(id));
+      const attempts = state.countryAttempts[id] || 0;
+      if (attempts > 10) {
+        dispatch(setError('Вичерпано кількість спроб для цієї країни'));
+        return;
+      }
 
       // --- Перевірка кешу
       if (state.resultsCache[key]) {
@@ -33,72 +41,61 @@ export const fetchTours = createAsyncThunk(
       dispatch(setRetriesLeft(retries));
 
       const response = await startSearchPrices(id);
-      let { token, waitUntil } = await response.json(); // 🔹 let
+      const { token, waitUntil } = await response.json();
 
       dispatch(setToken(token));
       dispatch(setWaiting(new Date(waitUntil).getTime()));
 
       let results = null;
 
-      while (!results && retries >= 0) {
-        const now = Date.now();
-        if (waitUntil && now < new Date(waitUntil).getTime()) {
-          await new Promise((res) => setTimeout(res, new Date(waitUntil).getTime() - now));
-        }
+      const now = Date.now();
+      if (waitUntil && now < new Date(waitUntil).getTime()) {
+        await new Promise((res) => setTimeout(res, new Date(waitUntil).getTime() - now));
+      }
 
-        try {
-          const resp = await getSearchPrices(token);
+      try {
+        const resp = await getSearchPrices(token);
 
-          if (resp.status === 200) {
-            const data = await resp.json();
-            results = Object.values(data.prices || {});
+        if (resp.status === 200) {
+          const data = await resp.json();
+          results = Object.values(data.prices || {});
 
-            // --- ДОКАЧИВАЕМ ОТЕЛИ ---
-            const state = getState().tours;
-            let hotels = state.hotelsCache[id];
-
-            if (!hotels) {
-              const hotelsResp = await getHotels(id);
-              hotels = await hotelsResp.json();
-              dispatch(setHotelsCache({ countryId: id, hotels }));
-            }
-
-            const enriched = results.map((tour) => {
-              const hotel = hotels[tour.hotelID];
-              return {
-                ...tour,
-                hotelName: hotel?.name || '—',
-                img: hotel?.img || null,
-                city: hotel?.cityName || '',
-                country: hotel?.countryName || '',
-              };
-            });
-
-            // --- Зберігаємо в кеш
-            dispatch(setResultsCache({ type, id, results: enriched }));
-            dispatch(setResults(enriched));
-            dispatch(clearWaiting());
-            return;
-          } else if (resp.status === 425) {
-            const { waitUntil: newWait } = await resp.json();
-
-            // 🔹 оновлюємо waitUntil
-            waitUntil = newWait;
-
-            dispatch(setWaiting(new Date(newWait).getTime()));
-            continue;
-          } else {
-            throw new Error(`Помилка: статус ${resp.status}`);
+          // --- если пришёл пустой результат → ретраи -1
+          if (!results || results.length === 0) {
+            retries -= 1;
+            dispatch(setRetriesLeft(retries));
           }
-        } catch (err) {
-          retries -= 1;
-          dispatch(setRetriesLeft(retries));
-          if (retries < 0) {
-            dispatch(setError(err.message));
-            dispatch(stopLoading());
-            return;
+
+          // --- ДОКАЧУЄМО ГОТЕЛІ ---
+          let hotels = state.hotelsCache[id];
+          if (!hotels) {
+            const hotelsResp = await getHotels(id);
+            hotels = await hotelsResp.json();
+            dispatch(setHotelsCache({ countryId: id, hotels }));
           }
+
+          const enriched = results.map((tour) => {
+            const hotel = hotels[tour.hotelID];
+            return {
+              ...tour,
+              hotelName: hotel?.name || '—',
+              img: hotel?.img || null,
+              city: hotel?.cityName || '',
+              country: hotel?.countryName || '',
+            };
+          });
+
+          dispatch(setResultsCache({ type, id, results: enriched }));
+          dispatch(setResults(enriched));
+          dispatch(clearWaiting());
+        } else if (resp.status === 425) {
+          const { waitUntil: newWait } = await resp.json();
+          dispatch(setWaiting(new Date(newWait).getTime()));
+        } else {
+          throw new Error(`Помилка: статус ${resp.status}`);
         }
+      } catch (err) {
+        console.error(err);
       }
     } catch (err) {
       dispatch(setError(err.message));

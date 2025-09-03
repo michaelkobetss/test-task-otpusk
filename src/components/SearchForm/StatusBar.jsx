@@ -13,8 +13,11 @@ const StatusBar = ({
 }) => {
   return (
     <div className={styles.statusBar}>
-      {typeof retriesForThisCountry === 'number' && retriesForThisCountry <= 0 && !isLoading && (
+      {retriesForThisCountry <= 0 && !isLoading && (
         <div className={styles.error}>Ліміт спроб оновлення вичерпано.</div>
+      )}
+      {retriesForThisCountry > 0 && retriesForThisCountry < 2 && !isLoading && (
+        <div className={styles.error}>Залишилося {retriesForThisCountry} спроба.</div>
       )}
 
       {isLoading && (

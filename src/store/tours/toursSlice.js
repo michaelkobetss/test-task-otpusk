@@ -1,3 +1,4 @@
+// src/store/tours/toursSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
@@ -7,18 +8,19 @@ const initialState = {
   results: [],
   searchResults: {},
   hotelsCache: {},
-
-  resultsCache: {}, // ✅ кеш для результатів пошуку (type + id)
+  resultsCache: {},
 
   isLoading: false,
   isWaiting: false,
   error: null,
+  info: null,
 
   token: null,
   waitUntil: null,
   retriesLeft: 2,
-  info: null,
   remainingSeconds: 0,
+
+  countryAttempts: {}, // { countryId: count }
 };
 
 const toursSlice = createSlice({
@@ -33,10 +35,10 @@ const toursSlice = createSlice({
       state.selectedItem = null;
     },
 
-    // --- для пошуку турів
     startLoading: (state) => {
       state.isLoading = true;
       state.error = null;
+      state.info = null;
       state.results = [];
     },
     stopLoading: (state) => {
@@ -47,7 +49,6 @@ const toursSlice = createSlice({
       state.isWaiting = true;
       state.waitUntil = action.payload;
     },
-
     clearWaiting: (state) => {
       state.isWaiting = false;
       state.waitUntil = null;
@@ -62,6 +63,7 @@ const toursSlice = createSlice({
       state.isLoading = false;
       state.isWaiting = false;
       state.error = null;
+      state.info = action.payload.length === 0 ? 'За вашим запитом турів не знайдено' : null;
     },
 
     setError: (state, action) => {
@@ -70,8 +72,20 @@ const toursSlice = createSlice({
       state.isWaiting = false;
     },
 
+    setInfo: (state, action) => {
+      state.info = action.payload;
+    },
+    clearInfo: (state) => {
+      state.info = null;
+    },
+
     setRetriesLeft: (state, action) => {
       state.retriesLeft = action.payload;
+
+      // повідомлення тільки якщо залишилось < 2
+      if (action.payload < 2) {
+        state.info = `Залишилось спроб: ${action.payload}`;
+      }
     },
 
     // --- кеш готелів
@@ -87,15 +101,10 @@ const toursSlice = createSlice({
       state.resultsCache[key] = results;
     },
 
-    // --- статус бар
-    setInfo: (state, action) => {
-      state.info = action.payload;
-    },
-    setRemainingSeconds: (state, action) => {
-      state.remainingSeconds = action.payload;
-    },
-    clearInfo: (state) => {
-      state.info = null;
+    // --- спроби на країну
+    incrementCountryAttempt: (state, action) => {
+      const countryId = action.payload;
+      state.countryAttempts[countryId] = (state.countryAttempts[countryId] || 0) + 1;
     },
   },
 });
@@ -110,12 +119,12 @@ export const {
   setToken,
   setResults,
   setError,
+  setInfo,
+  clearInfo,
   setRetriesLeft,
   setHotelsCache,
   setResultsCache,
-  setInfo,
-  setRemainingSeconds,
-  clearInfo,
+  incrementCountryAttempt,
 } = toursSlice.actions;
 
 export default toursSlice.reducer;

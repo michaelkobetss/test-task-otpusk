@@ -173,10 +173,6 @@ const SearchForm = () => {
         error={error}
       />
 
-      {!isLoading && !isWaiting && !error && results?.length === 0 && (
-        <div className={styles['search-form__empty']}>За вашим запитом турів не знайдено</div>
-      )}
-
       {!isLoading && !isWaiting && !error && results?.length > 0 && (
         <ToursList results={results} selectedType={selectedType} selectedItem={selectedItem} />
       )}
